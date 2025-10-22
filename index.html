@@ -1,0 +1,207 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LinkKeeper</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand-row">
+        <h1 class="app-title">LinkKeeper</h1>
+        <button class="primary-btn" id="open-modal-btn" type="button">
+          A&ntilde;adir enlace
+        </button>
+      </div>
+      <div class="controls-row">
+        <label class="control-item" for="category-filter">
+          <span class="label-text">Categor&iacute;a</span>
+          <select id="category-filter" aria-label="Filtrar por categor&iacute;a">
+            <option value="all">Todas</option>
+          </select>
+        </label>
+        <label class="control-item search" for="search-input">
+          <span class="label-text">Buscar</span>
+          <input
+            id="search-input"
+            type="search"
+            placeholder="T&iacute;tulo, URL o descripci&oacute;n"
+            aria-label="Buscar enlaces"
+          />
+        </label>
+      </div>
+    </header>
+    <main>
+      <section
+        id="empty-state"
+        class="empty-state"
+        role="status"
+        aria-live="polite"
+      >
+        No hay enlaces guardados todav&iacute;a. Pulsa &ldquo;A&ntilde;adir enlace&rdquo; para empezar.
+      </section>
+      <section id="cards-container" class="cards-grid" aria-live="polite"></section>
+    </main>
+    <footer class="app-footer">
+      <button id="import-btn" type="button" class="secondary-btn">
+        Importar JSON
+      </button>
+      <input
+        id="import-input"
+        type="file"
+        accept="application/json"
+        aria-label="Seleccionar archivo JSON para importar"
+        hidden
+      />
+      <button id="export-btn" type="button" class="secondary-btn">
+        Exportar JSON
+      </button>
+    </footer>
+    <div
+      id="modal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      aria-describedby="modal-description"
+      hidden
+    >
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modal-title">A&ntilde;adir enlace</h2>
+          <button
+            id="close-modal-btn"
+            class="icon-btn"
+            type="button"
+            aria-label="Cerrar formulario"
+          >
+            &times;
+          </button>
+        </div>
+        <p id="modal-description" class="modal-description">
+          Completa los campos obligatorios marcados con * para guardar tu enlace.
+        </p>
+        <form id="link-form" novalidate>
+          <input type="hidden" id="link-id" />
+          <div class="form-field">
+            <label for="title-input">T&iacute;tulo *</label>
+            <input
+              id="title-input"
+              type="text"
+              required
+              autocomplete="off"
+              aria-describedby="title-error"
+            />
+            <p id="title-error" class="error-message" aria-live="polite"></p>
+          </div>
+          <div class="form-field">
+            <label for="url-input">URL *</label>
+            <input
+              id="url-input"
+              type="url"
+              required
+              placeholder="https://ejemplo.com"
+              autocomplete="off"
+              aria-describedby="url-error"
+            />
+            <p id="url-error" class="error-message" aria-live="polite"></p>
+          </div>
+          <div class="form-field">
+            <label for="category-select">Categor&iacute;a *</label>
+            <select
+              id="category-select"
+              required
+              aria-describedby="category-error"
+            >
+              <option value="">Selecciona una categor&iacute;a</option>
+            </select>
+            <p id="category-error" class="error-message" aria-live="polite"></p>
+          </div>
+          <div class="form-field" id="new-category-field" hidden>
+            <label for="new-category-input">Nueva categor&iacute;a *</label>
+            <input
+              id="new-category-input"
+              type="text"
+              autocomplete="off"
+              aria-describedby="new-category-error"
+            />
+            <p
+              id="new-category-error"
+              class="error-message"
+              aria-live="polite"
+            ></p>
+          </div>
+          <div class="form-field">
+            <label for="description-input">Descripci&oacute;n</label>
+            <textarea
+              id="description-input"
+              rows="3"
+              aria-describedby="description-error"
+            ></textarea>
+            <p
+              id="description-error"
+              class="error-message"
+              aria-live="polite"
+            ></p>
+          </div>
+          <fieldset class="form-field image-field">
+            <legend>Imagen (opcional)</legend>
+            <label for="image-url-input" class="sub-label">
+              URL de la imagen
+            </label>
+            <input
+              id="image-url-input"
+              type="url"
+              placeholder="https://..."
+              aria-describedby="image-url-error"
+            />
+            <p
+              id="image-url-error"
+              class="error-message"
+              aria-live="polite"
+            ></p>
+            <label for="image-file-input" class="sub-label">
+              o sube un archivo
+            </label>
+            <input
+              id="image-file-input"
+              type="file"
+              accept="image/*"
+              aria-describedby="image-file-error"
+            />
+            <p
+              id="image-file-error"
+              class="error-message"
+              aria-live="polite"
+            ></p>
+            <div id="image-preview" class="image-preview" aria-hidden="true">
+              <img alt="Vista previa de la imagen seleccionada" />
+              <button
+                id="clear-image-btn"
+                type="button"
+                class="secondary-btn compact"
+              >
+                Quitar imagen
+              </button>
+            </div>
+          </fieldset>
+          <div class="form-actions">
+            <button type="submit" class="primary-btn" id="submit-btn">
+              Guardar
+            </button>
+            <button
+              type="button"
+              class="secondary-btn"
+              id="cancel-btn"
+              aria-label="Cancelar y cerrar formulario"
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
